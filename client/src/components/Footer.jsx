@@ -1,4 +1,4 @@
-const staticSocialLinks = [
+const fallbackSocialLinks = [
   {
     label: 'Spotify',
     url: 'https://open.spotify.com/intl-fr/artist/1CHqRXInztOmKRYFbpw8Cs/discography/all?edv=1',
@@ -83,7 +83,34 @@ export default function Footer({ contacts = {} }) {
       : null
   ].filter(Boolean);
 
-  const socialLinks = [...dynamicLinks, ...staticSocialLinks];
+  const socialLinks = [
+    {
+      label: 'Spotify',
+      url: contacts.spotifyUrl || fallbackSocialLinks.find((s) => s.label === 'Spotify').url,
+      icon: fallbackSocialLinks.find((s) => s.label === 'Spotify').icon
+    },
+    {
+      label: 'YouTube',
+      url: contacts.youtubeUrl || fallbackSocialLinks.find((s) => s.label === 'YouTube').url,
+      icon: fallbackSocialLinks.find((s) => s.label === 'YouTube').icon
+    },
+    {
+      label: 'Facebook',
+      url: contacts.facebookUrl || fallbackSocialLinks.find((s) => s.label === 'Facebook').url,
+      icon: fallbackSocialLinks.find((s) => s.label === 'Facebook').icon
+    },
+    {
+      label: 'Instagram',
+      url: contacts.instagramUrl || fallbackSocialLinks.find((s) => s.label === 'Instagram').url,
+      icon: fallbackSocialLinks.find((s) => s.label === 'Instagram').icon
+    },
+    {
+      label: 'TikTok',
+      url: contacts.tiktokUrl || fallbackSocialLinks.find((s) => s.label === 'TikTok').url,
+      icon: fallbackSocialLinks.find((s) => s.label === 'TikTok').icon
+    }
+  ];
+  const allLinks = [...dynamicLinks, ...socialLinks];
 
   return (
     <footer className="border-t border-gold/20 bg-black/50">
@@ -94,7 +121,7 @@ export default function Footer({ contacts = {} }) {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          {socialLinks.map((link) => (
+          {allLinks.map((link) => (
             <a
               key={link.label}
               href={link.url}

@@ -8,7 +8,12 @@
   "contacts": {
     "whatsappUrl": "https://wa.me/22300000000",
     "email": "booking@mohameddiaby.com",
-    "appleMusicUrl": "https://music.apple.com/us/artist/mohamed-diaby/1859768815"
+    "appleMusicUrl": "https://music.apple.com/us/artist/mohamed-diaby/1859768815",
+    "spotifyUrl": "https://open.spotify.com/intl-fr/artist/1CHqRXInztOmKRYFbpw8Cs/discography/all?edv=1",
+    "youtubeUrl": "https://www.youtube.com/channel/UCTZsHa5xNhJwlhEDrpds8ng",
+    "facebookUrl": "https://www.facebook.com/mohameddiabyofficiel/?locale=fr_FR",
+    "instagramUrl": "https://www.instagram.com/mohamed_diaby_officiel/",
+    "tiktokUrl": "https://www.tiktok.com/@mohdiaby223"
   },
   "events": [
     {
@@ -26,6 +31,14 @@
       "country": "Senegal",
       "venue": "Théâtre National",
       "ticketUrl": "https://example.com/tickets/dakar"
+    },
+    {
+      "id": "ev_1771941370383",
+      "date": "2026-03-08",
+      "city": "Matane",
+      "country": "Canada",
+      "venue": "Amphi",
+      "ticketUrl": "https://example.com/matane"
     }
   ],
   "gallery": [
@@ -48,6 +61,11 @@
       "id": "img_1771373705893",
       "url": "/uploads/img_1771373705884.png",
       "caption": "test test "
+    },
+    {
+      "id": "img_1771940379735",
+      "url": "/uploads/img_1771940379725.jpeg",
+      "caption": "   ge"
     }
   ],
   "partners": [
@@ -56,6 +74,12 @@
       "name": "Label Heritage",
       "websiteUrl": "https://example.com",
       "logoUrl": "https://images.unsplash.com/photo-1618005198919-d3d4b5a92eee?auto=format&fit=crop&w=500&q=80"
+    },
+    {
+      "id": "partner_1771940290059",
+      "name": "E-katicket",
+      "websiteUrl": "https://www.facebook.com/p/e-KaTicket-100092641341385/",
+      "logoUrl": "/uploads/img_1771940290054.jpeg"
     }
   ],
   "tracks": [],

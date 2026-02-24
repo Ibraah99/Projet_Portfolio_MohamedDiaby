@@ -2,12 +2,13 @@ const API_BASE = 'http://localhost:4000/api';
 
 async function request(path, options = {}) {
   const isFormData = options.body instanceof FormData;
+  const { headers: customHeaders = {}, ...restOptions } = options;
   const res = await fetch(`${API_BASE}${path}`, {
+    ...restOptions,
     headers: {
       ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
-      ...(options.headers || {})
-    },
-    ...options
+      ...customHeaders
+    }
   });
 
   const data = await res.json().catch(() => ({}));

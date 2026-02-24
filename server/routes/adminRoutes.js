@@ -155,7 +155,16 @@ router.post('/artist/hero/upload', requireAdmin, upload.single('image'), async (
 });
 
 router.put('/contacts', requireAdmin, async (req, res) => {
-  const { whatsappUrl, email, appleMusicUrl } = req.body;
+  const {
+    whatsappUrl,
+    email,
+    appleMusicUrl,
+    spotifyUrl,
+    youtubeUrl,
+    facebookUrl,
+    instagramUrl,
+    tiktokUrl
+  } = req.body;
 
   if (!whatsappUrl || !email || !appleMusicUrl) {
     return res.status(400).json({ error: 'whatsappUrl, email et appleMusicUrl sont obligatoires' });
@@ -166,7 +175,12 @@ router.put('/contacts', requireAdmin, async (req, res) => {
     data.contacts = {
       whatsappUrl: String(whatsappUrl).trim(),
       email: String(email).trim(),
-      appleMusicUrl: String(appleMusicUrl).trim()
+      appleMusicUrl: String(appleMusicUrl).trim(),
+      spotifyUrl: String(spotifyUrl || '').trim(),
+      youtubeUrl: String(youtubeUrl || '').trim(),
+      facebookUrl: String(facebookUrl || '').trim(),
+      instagramUrl: String(instagramUrl || '').trim(),
+      tiktokUrl: String(tiktokUrl || '').trim()
     };
     await writeData(data);
     res.json(data.contacts);
@@ -323,16 +337,19 @@ router.post('/events', requireAdmin, async (req, res) => {
   if (!date || !city || !country || !venue) {
     return res.status(400).json({ error: 'date, city, country et venue sont obligatoires' });
   }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date))) {
+    return res.status(400).json({ error: 'Format de date invalide (YYYY-MM-DD attendu)' });
+  }
 
   try {
     const data = await readData();
     const event = {
       id: `ev_${Date.now()}`,
-      date,
-      city,
-      country,
-      venue,
-      ticketUrl: ticketUrl || ''
+      date: String(date).trim(),
+      city: String(city).trim(),
+      country: String(country).trim(),
+      venue: String(venue).trim(),
+      ticketUrl: String(ticketUrl || '').trim()
     };
 
     data.events.push(event);

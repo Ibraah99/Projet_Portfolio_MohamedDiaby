@@ -3,9 +3,31 @@ import { api } from '../services/api';
 
 const emptyEvent = { date: '', city: '', country: '', venue: '', ticketUrl: '' };
 const emptyArtist = { name: '', latestHit: '', bio: '', heroMediaUrl: '' };
-const emptyContacts = { whatsappUrl: '', email: '', appleMusicUrl: '' };
+const emptyContacts = {
+  whatsappUrl: '',
+  email: '',
+  appleMusicUrl: '',
+  spotifyUrl: '',
+  youtubeUrl: '',
+  facebookUrl: '',
+  instagramUrl: '',
+  tiktokUrl: ''
+};
 const emptyPartner = { name: '', websiteUrl: '' };
 const emptyTrack = { title: '' };
+
+const labelClass = 'mb-1 block text-xs font-semibold uppercase tracking-wide text-sand/75';
+const inputClass = 'w-full rounded bg-black/40 px-3 py-2';
+
+function isValidHttpUrl(value) {
+  if (!value) return true;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
 
 export default function AdminPage() {
   const [token, setToken] = useState(localStorage.getItem('adminToken') || '');
@@ -32,6 +54,18 @@ export default function AdminPage() {
   const [editingTrackId, setEditingTrackId] = useState('');
 
   const [message, setMessage] = useState('');
+  const isAuthError = (msg = '') => /token invalide|expiré|non autorisé|unauthorized/i.test(msg);
+
+  const handleApiError = (error, fallbackMessage) => {
+    const msg = error?.message || fallbackMessage;
+    if (isAuthError(msg)) {
+      localStorage.removeItem('adminToken');
+      setToken('');
+      setMessage('Session expirée. Merci de vous reconnecter.');
+      return;
+    }
+    setMessage(msg);
+  };
 
   const load = async () => {
     try {
@@ -46,7 +80,12 @@ export default function AdminPage() {
       setContactsForm({
         whatsappUrl: data.contacts?.whatsappUrl || '',
         email: data.contacts?.email || '',
-        appleMusicUrl: data.contacts?.appleMusicUrl || ''
+        appleMusicUrl: data.contacts?.appleMusicUrl || '',
+        spotifyUrl: data.contacts?.spotifyUrl || '',
+        youtubeUrl: data.contacts?.youtubeUrl || '',
+        facebookUrl: data.contacts?.facebookUrl || '',
+        instagramUrl: data.contacts?.instagramUrl || '',
+        tiktokUrl: data.contacts?.tiktokUrl || ''
       });
     } catch {
       setMessage('Impossible de charger les données');
@@ -77,23 +116,71 @@ export default function AdminPage() {
 
   const saveArtist = async (e) => {
     e.preventDefault();
+    if (!artistForm.name.trim() || !artistForm.latestHit.trim() || !artistForm.bio.trim() || !artistForm.heroMediaUrl.trim()) {
+      setMessage('Merci de remplir tous les champs du profil artiste.');
+      return;
+    }
+    if (!isValidHttpUrl(artistForm.heroMediaUrl.trim())) {
+      setMessage('URL image hero invalide (http/https attendu).');
+      return;
+    }
+
     try {
-      await api.updateArtist(artistForm, token);
+      await api.updateArtist(
+        {
+          name: artistForm.name.trim(),
+          latestHit: artistForm.latestHit.trim(),
+          bio: artistForm.bio.trim(),
+          heroMediaUrl: artistForm.heroMediaUrl.trim()
+        },
+        token
+      );
       await load();
       setMessage('Profil artiste mis à jour');
     } catch (error) {
-      setMessage(error.message);
+      handleApiError(error, 'Échec de mise à jour du profil artiste');
     }
   };
 
   const saveContacts = async (e) => {
     e.preventDefault();
+    if (!contactsForm.whatsappUrl.trim() || !contactsForm.email.trim() || !contactsForm.appleMusicUrl.trim()) {
+      setMessage('WhatsApp, Email et Apple Music sont obligatoires.');
+      return;
+    }
+
+    const urlFields = [
+      contactsForm.whatsappUrl,
+      contactsForm.appleMusicUrl,
+      contactsForm.spotifyUrl,
+      contactsForm.youtubeUrl,
+      contactsForm.facebookUrl,
+      contactsForm.instagramUrl,
+      contactsForm.tiktokUrl
+    ];
+    if (urlFields.some((v) => v && !isValidHttpUrl(v.trim()))) {
+      setMessage('Un ou plusieurs liens de contact/réseaux sont invalides (http/https attendu).');
+      return;
+    }
+
     try {
-      await api.updateContacts(contactsForm, token);
+      await api.updateContacts(
+        {
+          whatsappUrl: contactsForm.whatsappUrl.trim(),
+          email: contactsForm.email.trim(),
+          appleMusicUrl: contactsForm.appleMusicUrl.trim(),
+          spotifyUrl: contactsForm.spotifyUrl.trim(),
+          youtubeUrl: contactsForm.youtubeUrl.trim(),
+          facebookUrl: contactsForm.facebookUrl.trim(),
+          instagramUrl: contactsForm.instagramUrl.trim(),
+          tiktokUrl: contactsForm.tiktokUrl.trim()
+        },
+        token
+      );
       await load();
       setMessage('Contacts mis à jour');
     } catch (error) {
-      setMessage(error.message);
+      handleApiError(error, 'Échec de mise à jour des contacts');
     }
   };
 
@@ -112,19 +199,37 @@ export default function AdminPage() {
       await load();
       setMessage('Image hero mise à jour');
     } catch (error) {
-      setMessage(error.message);
+      handleApiError(error, "Échec d'upload de l'image hero");
     }
   };
 
   const addEvent = async (e) => {
     e.preventDefault();
+    if (!eventForm.date || !eventForm.city.trim() || !eventForm.country.trim() || !eventForm.venue.trim()) {
+      setMessage('Merci de renseigner date, ville, pays et salle.');
+      return;
+    }
+    if (eventForm.ticketUrl.trim() && !isValidHttpUrl(eventForm.ticketUrl.trim())) {
+      setMessage('Le lien billetterie est invalide (http/https attendu).');
+      return;
+    }
+
     try {
-      await api.createEvent(eventForm, token);
+      await api.createEvent(
+        {
+          date: String(eventForm.date).trim(),
+          city: eventForm.city.trim(),
+          country: eventForm.country.trim(),
+          venue: eventForm.venue.trim(),
+          ticketUrl: eventForm.ticketUrl.trim()
+        },
+        token
+      );
       setEventForm(emptyEvent);
       await load();
       setMessage('Concert ajouté');
     } catch (error) {
-      setMessage(error.message);
+      handleApiError(error, 'Échec de création du concert');
     }
   };
 
@@ -141,14 +246,33 @@ export default function AdminPage() {
 
   const saveEvent = async (e) => {
     e.preventDefault();
+    if (!eventForm.date || !eventForm.city.trim() || !eventForm.country.trim() || !eventForm.venue.trim()) {
+      setMessage('Merci de renseigner date, ville, pays et salle.');
+      return;
+    }
+    if (eventForm.ticketUrl.trim() && !isValidHttpUrl(eventForm.ticketUrl.trim())) {
+      setMessage('Le lien billetterie est invalide (http/https attendu).');
+      return;
+    }
+
     try {
-      await api.updateEvent(editingEventId, eventForm, token);
+      await api.updateEvent(
+        editingEventId,
+        {
+          date: String(eventForm.date).trim(),
+          city: eventForm.city.trim(),
+          country: eventForm.country.trim(),
+          venue: eventForm.venue.trim(),
+          ticketUrl: eventForm.ticketUrl.trim()
+        },
+        token
+      );
       setEditingEventId('');
       setEventForm(emptyEvent);
       await load();
       setMessage('Concert mis à jour');
     } catch (error) {
-      setMessage(error.message);
+      handleApiError(error, 'Échec de mise à jour du concert');
     }
   };
 
@@ -158,7 +282,7 @@ export default function AdminPage() {
       await load();
       setMessage('Concert supprimé');
     } catch (error) {
-      setMessage(error.message);
+      handleApiError(error, 'Échec de suppression du concert');
     }
   };
 
@@ -190,7 +314,7 @@ export default function AdminPage() {
       await load();
       setMessage('Image ajoutée');
     } catch (error) {
-      setMessage(error.message);
+      handleApiError(error, "Échec d'ajout de l'image");
     }
   };
 
@@ -205,7 +329,7 @@ export default function AdminPage() {
       await load();
       setMessage('Image mise à jour');
     } catch (error) {
-      setMessage(error.message);
+      handleApiError(error, "Échec de mise à jour de l'image");
     }
   };
 
@@ -215,21 +339,29 @@ export default function AdminPage() {
       await load();
       setMessage('Image supprimée');
     } catch (error) {
-      setMessage(error.message);
+      handleApiError(error, "Échec de suppression de l'image");
     }
   };
 
   const addPartner = async (e) => {
     e.preventDefault();
+    if (!partnerForm.name.trim()) {
+      setMessage('Le nom partenaire est obligatoire.');
+      return;
+    }
     if (!partnerFile) {
       setMessage('Veuillez sélectionner un logo partenaire');
+      return;
+    }
+    if (partnerForm.websiteUrl.trim() && !isValidHttpUrl(partnerForm.websiteUrl.trim())) {
+      setMessage('Le site partenaire est invalide (http/https attendu).');
       return;
     }
 
     try {
       const formData = new FormData();
-      formData.append('name', partnerForm.name);
-      formData.append('websiteUrl', partnerForm.websiteUrl);
+      formData.append('name', partnerForm.name.trim());
+      formData.append('websiteUrl', partnerForm.websiteUrl.trim());
       formData.append('image', partnerFile);
       await api.createPartner(formData, token);
       setPartnerForm(emptyPartner);
@@ -237,7 +369,7 @@ export default function AdminPage() {
       await load();
       setMessage('Partenaire ajouté');
     } catch (error) {
-      setMessage(error.message);
+      handleApiError(error, 'Échec de création partenaire');
     }
   };
 
@@ -249,10 +381,19 @@ export default function AdminPage() {
 
   const savePartner = async (e) => {
     e.preventDefault();
+    if (!partnerForm.name.trim()) {
+      setMessage('Le nom partenaire est obligatoire.');
+      return;
+    }
+    if (partnerForm.websiteUrl.trim() && !isValidHttpUrl(partnerForm.websiteUrl.trim())) {
+      setMessage('Le site partenaire est invalide (http/https attendu).');
+      return;
+    }
+
     try {
       const formData = new FormData();
-      formData.append('name', partnerForm.name);
-      formData.append('websiteUrl', partnerForm.websiteUrl);
+      formData.append('name', partnerForm.name.trim());
+      formData.append('websiteUrl', partnerForm.websiteUrl.trim());
       if (partnerFile) formData.append('image', partnerFile);
       await api.updatePartner(editingPartnerId, formData, token);
       setEditingPartnerId('');
@@ -261,7 +402,7 @@ export default function AdminPage() {
       await load();
       setMessage('Partenaire mis à jour');
     } catch (error) {
-      setMessage(error.message);
+      handleApiError(error, 'Échec de mise à jour partenaire');
     }
   };
 
@@ -271,12 +412,16 @@ export default function AdminPage() {
       await load();
       setMessage('Partenaire supprimé');
     } catch (error) {
-      setMessage(error.message);
+      handleApiError(error, 'Échec de suppression partenaire');
     }
   };
 
   const addTrack = async (e) => {
     e.preventDefault();
+    if (!trackForm.title.trim()) {
+      setMessage('Le titre extrait est obligatoire.');
+      return;
+    }
     if (!trackFile) {
       setMessage('Veuillez sélectionner un fichier audio');
       return;
@@ -284,7 +429,7 @@ export default function AdminPage() {
 
     try {
       const formData = new FormData();
-      formData.append('title', trackForm.title);
+      formData.append('title', trackForm.title.trim());
       formData.append('audio', trackFile);
       await api.createTrack(formData, token);
       setTrackForm(emptyTrack);
@@ -292,7 +437,7 @@ export default function AdminPage() {
       await load();
       setMessage('Extrait ajouté');
     } catch (error) {
-      setMessage(error.message);
+      handleApiError(error, "Échec d'ajout d'extrait");
     }
   };
 
@@ -303,14 +448,19 @@ export default function AdminPage() {
 
   const saveTrack = async (e) => {
     e.preventDefault();
+    if (!trackForm.title.trim()) {
+      setMessage('Le titre extrait est obligatoire.');
+      return;
+    }
+
     try {
-      await api.updateTrack(editingTrackId, { title: trackForm.title }, token);
+      await api.updateTrack(editingTrackId, { title: trackForm.title.trim() }, token);
       setEditingTrackId('');
       setTrackForm(emptyTrack);
       await load();
       setMessage('Extrait mis à jour');
     } catch (error) {
-      setMessage(error.message);
+      handleApiError(error, "Échec de mise à jour d'extrait");
     }
   };
 
@@ -320,7 +470,7 @@ export default function AdminPage() {
       await load();
       setMessage('Extrait supprimé');
     } catch (error) {
-      setMessage(error.message);
+      handleApiError(error, "Échec de suppression d'extrait");
     }
   };
 
@@ -328,16 +478,19 @@ export default function AdminPage() {
     return (
       <div className="section-shell">
         <h1 className="font-display text-3xl text-gold">Connexion Admin</h1>
-        <p className="mt-2 text-sand/60">Mot de passe par défaut: 123</p>
-        <form onSubmit={login} className="mt-6 max-w-md space-y-4">
-          <input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            type="password"
-            placeholder="Mot de passe"
-            className="w-full rounded-lg border border-gold/25 bg-panel px-4 py-3 text-sand"
-          />
-          <button className="rounded-full bg-gold px-5 py-2 font-semibold text-ink">Se connecter</button>
+        <p className="mt-2 text-sand/60">Mot de passe configuré dans `server/.env` (ADMIN_PASSWORD)</p>
+        <form noValidate onSubmit={login} className="mt-6 max-w-md space-y-4">
+          <label className="block">
+            <span className={labelClass}>Mot de passe</span>
+            <input
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              type="password"
+              placeholder="Mot de passe"
+              className="w-full rounded-lg border border-gold/25 bg-panel px-4 py-3 text-sand"
+            />
+          </label>
+          <button type="submit" className="rounded-full bg-gold px-5 py-2 font-semibold text-ink">Se connecter</button>
         </form>
         {message ? <p className="mt-4 text-sm text-sand/80">{message}</p> : null}
       </div>
@@ -351,42 +504,50 @@ export default function AdminPage() {
         <button onClick={logout} className="rounded-full border border-gold px-4 py-2 text-gold">Déconnexion</button>
       </div>
 
-      {message ? <p className="text-sm text-sand/75">{message}</p> : null}
+      {message ? <p className="rounded border border-gold/30 bg-gold/10 px-3 py-2 text-sm text-sand">{message}</p> : null}
 
       <section className="rounded-xl border border-gold/20 bg-panel/70 p-5">
         <h2 className="font-display text-2xl text-sand">Profil artiste</h2>
-        <form onSubmit={saveArtist} className="mt-4 grid gap-3 md:grid-cols-2">
-          <input type="text" required placeholder="Nom artiste" value={artistForm.name} onChange={(e) => setArtistForm({ ...artistForm, name: e.target.value })} className="rounded bg-black/40 px-3 py-2" />
-          <input type="text" required placeholder="Dernier titre" value={artistForm.latestHit} onChange={(e) => setArtistForm({ ...artistForm, latestHit: e.target.value })} className="rounded bg-black/40 px-3 py-2" />
-          <input type="url" required placeholder="URL image hero" value={artistForm.heroMediaUrl} onChange={(e) => setArtistForm({ ...artistForm, heroMediaUrl: e.target.value })} className="rounded bg-black/40 px-3 py-2 md:col-span-2" />
-          <textarea rows={5} required placeholder="Biographie" value={artistForm.bio} onChange={(e) => setArtistForm({ ...artistForm, bio: e.target.value })} className="rounded bg-black/40 px-3 py-2 md:col-span-2" />
-          <button className="w-fit rounded-full bg-gold px-4 py-2 font-semibold text-ink">Enregistrer le profil</button>
+        <form noValidate onSubmit={saveArtist} className="mt-4 grid gap-3 md:grid-cols-2">
+          <label><span className={labelClass}>Nom artiste</span><input type="text" value={artistForm.name} onChange={(e) => setArtistForm({ ...artistForm, name: e.target.value })} className={inputClass} /></label>
+          <label><span className={labelClass}>Dernier titre</span><input type="text" value={artistForm.latestHit} onChange={(e) => setArtistForm({ ...artistForm, latestHit: e.target.value })} className={inputClass} /></label>
+          <label className="md:col-span-2"><span className={labelClass}>URL image hero</span><input type="text" value={artistForm.heroMediaUrl} onChange={(e) => setArtistForm({ ...artistForm, heroMediaUrl: e.target.value })} className={inputClass} /></label>
+          <label className="md:col-span-2"><span className={labelClass}>Biographie</span><textarea rows={5} value={artistForm.bio} onChange={(e) => setArtistForm({ ...artistForm, bio: e.target.value })} className={inputClass} /></label>
+          <button type="submit" className="w-fit rounded-full bg-gold px-4 py-2 font-semibold text-ink">Enregistrer le profil</button>
         </form>
 
-        <form onSubmit={uploadHero} className="mt-5 flex flex-wrap items-center gap-3">
-          <input type="file" accept="image/*" onChange={(e) => setHeroFile(e.target.files?.[0] || null)} className="rounded bg-black/40 px-3 py-2" />
-          <button className="rounded-full border border-gold px-4 py-2 font-semibold text-gold">Uploader image hero</button>
+        <form noValidate onSubmit={uploadHero} className="mt-5 flex flex-wrap items-center gap-3">
+          <label className="block">
+            <span className={labelClass}>Nouvelle image hero</span>
+            <input type="file" accept="image/*" onChange={(e) => setHeroFile(e.target.files?.[0] || null)} className="rounded bg-black/40 px-3 py-2" />
+          </label>
+          <button type="submit" className="rounded-full border border-gold px-4 py-2 font-semibold text-gold">Uploader image hero</button>
         </form>
       </section>
 
       <section className="rounded-xl border border-gold/20 bg-panel/70 p-5">
         <h2 className="font-display text-2xl text-sand">Contacts footer</h2>
-        <form onSubmit={saveContacts} className="mt-4 grid gap-3 md:grid-cols-2">
-          <input type="url" required placeholder="Lien WhatsApp" value={contactsForm.whatsappUrl} onChange={(e) => setContactsForm({ ...contactsForm, whatsappUrl: e.target.value })} className="rounded bg-black/40 px-3 py-2 md:col-span-2" />
-          <input type="email" required placeholder="Email booking" value={contactsForm.email} onChange={(e) => setContactsForm({ ...contactsForm, email: e.target.value })} className="rounded bg-black/40 px-3 py-2" />
-          <input type="url" required placeholder="Lien Apple Music" value={contactsForm.appleMusicUrl} onChange={(e) => setContactsForm({ ...contactsForm, appleMusicUrl: e.target.value })} className="rounded bg-black/40 px-3 py-2" />
-          <button className="w-fit rounded-full bg-gold px-4 py-2 font-semibold text-ink">Enregistrer contacts</button>
+        <form noValidate onSubmit={saveContacts} className="mt-4 grid gap-3 md:grid-cols-2">
+          <label className="md:col-span-2"><span className={labelClass}>Lien WhatsApp</span><input type="text" value={contactsForm.whatsappUrl} onChange={(e) => setContactsForm({ ...contactsForm, whatsappUrl: e.target.value })} className={inputClass} /></label>
+          <label><span className={labelClass}>Email booking</span><input type="email" value={contactsForm.email} onChange={(e) => setContactsForm({ ...contactsForm, email: e.target.value })} className={inputClass} /></label>
+          <label><span className={labelClass}>Lien Apple Music</span><input type="text" value={contactsForm.appleMusicUrl} onChange={(e) => setContactsForm({ ...contactsForm, appleMusicUrl: e.target.value })} className={inputClass} /></label>
+          <label><span className={labelClass}>Lien Spotify</span><input type="text" value={contactsForm.spotifyUrl} onChange={(e) => setContactsForm({ ...contactsForm, spotifyUrl: e.target.value })} className={inputClass} /></label>
+          <label><span className={labelClass}>Lien YouTube</span><input type="text" value={contactsForm.youtubeUrl} onChange={(e) => setContactsForm({ ...contactsForm, youtubeUrl: e.target.value })} className={inputClass} /></label>
+          <label><span className={labelClass}>Lien Facebook</span><input type="text" value={contactsForm.facebookUrl} onChange={(e) => setContactsForm({ ...contactsForm, facebookUrl: e.target.value })} className={inputClass} /></label>
+          <label><span className={labelClass}>Lien Instagram</span><input type="text" value={contactsForm.instagramUrl} onChange={(e) => setContactsForm({ ...contactsForm, instagramUrl: e.target.value })} className={inputClass} /></label>
+          <label className="md:col-span-2"><span className={labelClass}>Lien TikTok</span><input type="text" value={contactsForm.tiktokUrl} onChange={(e) => setContactsForm({ ...contactsForm, tiktokUrl: e.target.value })} className={inputClass} /></label>
+          <button type="submit" className="w-fit rounded-full bg-gold px-4 py-2 font-semibold text-ink">Enregistrer contacts</button>
         </form>
       </section>
 
       <section className="rounded-xl border border-gold/20 bg-panel/70 p-5">
         <h2 className="font-display text-2xl text-sand">Partenaires</h2>
-        <form onSubmit={editingPartnerId ? savePartner : addPartner} className="mt-4 grid gap-3 md:grid-cols-2">
-          <input type="text" required placeholder="Nom partenaire" value={partnerForm.name} onChange={(e) => setPartnerForm({ ...partnerForm, name: e.target.value })} className="rounded bg-black/40 px-3 py-2" />
-          <input type="url" placeholder="Site web" value={partnerForm.websiteUrl} onChange={(e) => setPartnerForm({ ...partnerForm, websiteUrl: e.target.value })} className="rounded bg-black/40 px-3 py-2" />
-          <input type="file" accept="image/*" onChange={(e) => setPartnerFile(e.target.files?.[0] || null)} className="rounded bg-black/40 px-3 py-2 md:col-span-2" />
+        <form noValidate onSubmit={editingPartnerId ? savePartner : addPartner} className="mt-4 grid gap-3 md:grid-cols-2">
+          <label><span className={labelClass}>Nom partenaire</span><input type="text" value={partnerForm.name} onChange={(e) => setPartnerForm({ ...partnerForm, name: e.target.value })} className={inputClass} /></label>
+          <label><span className={labelClass}>Site web partenaire</span><input type="text" value={partnerForm.websiteUrl} onChange={(e) => setPartnerForm({ ...partnerForm, websiteUrl: e.target.value })} className={inputClass} /></label>
+          <label className="md:col-span-2"><span className={labelClass}>{editingPartnerId ? 'Nouveau logo (optionnel)' : 'Logo partenaire'}</span><input type="file" accept="image/*" onChange={(e) => setPartnerFile(e.target.files?.[0] || null)} className={inputClass} /></label>
           <div className="flex gap-3 md:col-span-2">
-            <button className="rounded-full bg-gold px-4 py-2 font-semibold text-ink">{editingPartnerId ? 'Enregistrer partenaire' : 'Ajouter partenaire'}</button>
+            <button type="submit" className="rounded-full bg-gold px-4 py-2 font-semibold text-ink">{editingPartnerId ? 'Enregistrer partenaire' : 'Ajouter partenaire'}</button>
             {editingPartnerId ? <button type="button" onClick={() => { setEditingPartnerId(''); setPartnerForm(emptyPartner); setPartnerFile(null); }} className="rounded-full border border-gold/40 px-4 py-2 text-gold">Annuler</button> : null}
           </div>
         </form>
@@ -406,11 +567,15 @@ export default function AdminPage() {
 
       <section className="rounded-xl border border-gold/20 bg-panel/70 p-5">
         <h2 className="font-display text-2xl text-sand">Extraits audio hero</h2>
-        <form onSubmit={editingTrackId ? saveTrack : addTrack} className="mt-4 grid gap-3 md:grid-cols-2">
-          <input type="text" required placeholder="Titre extrait" value={trackForm.title} onChange={(e) => setTrackForm({ ...trackForm, title: e.target.value })} className="rounded bg-black/40 px-3 py-2" />
-          {!editingTrackId ? <input type="file" accept="audio/*" onChange={(e) => setTrackFile(e.target.files?.[0] || null)} className="rounded bg-black/40 px-3 py-2" /> : <div className="text-xs text-sand/60">Modification du titre uniquement</div>}
+        <form noValidate onSubmit={editingTrackId ? saveTrack : addTrack} className="mt-4 grid gap-3 md:grid-cols-2">
+          <label><span className={labelClass}>Titre extrait</span><input type="text" value={trackForm.title} onChange={(e) => setTrackForm({ ...trackForm, title: e.target.value })} className={inputClass} /></label>
+          {!editingTrackId ? (
+            <label><span className={labelClass}>Fichier audio</span><input type="file" accept="audio/*" onChange={(e) => setTrackFile(e.target.files?.[0] || null)} className={inputClass} /></label>
+          ) : (
+            <div className="text-xs text-sand/60">Modification du titre uniquement</div>
+          )}
           <div className="flex gap-3 md:col-span-2">
-            <button className="rounded-full bg-gold px-4 py-2 font-semibold text-ink">{editingTrackId ? 'Enregistrer extrait' : 'Ajouter extrait'}</button>
+            <button type="submit" className="rounded-full bg-gold px-4 py-2 font-semibold text-ink">{editingTrackId ? 'Enregistrer extrait' : 'Ajouter extrait'}</button>
             {editingTrackId ? <button type="button" onClick={() => { setEditingTrackId(''); setTrackForm(emptyTrack); }} className="rounded-full border border-gold/40 px-4 py-2 text-gold">Annuler</button> : null}
           </div>
         </form>
@@ -430,14 +595,14 @@ export default function AdminPage() {
 
       <section className="rounded-xl border border-gold/20 bg-panel/70 p-5">
         <h2 className="font-display text-2xl text-sand">Gérer les dates de tournée</h2>
-        <form onSubmit={editingEventId ? saveEvent : addEvent} className="mt-4 grid gap-3 md:grid-cols-2">
-          <input type="date" required value={eventForm.date} onChange={(e) => setEventForm({ ...eventForm, date: e.target.value })} className="rounded bg-black/40 px-3 py-2" />
-          <input type="text" required placeholder="Ville" value={eventForm.city} onChange={(e) => setEventForm({ ...eventForm, city: e.target.value })} className="rounded bg-black/40 px-3 py-2" />
-          <input type="text" required placeholder="Pays" value={eventForm.country} onChange={(e) => setEventForm({ ...eventForm, country: e.target.value })} className="rounded bg-black/40 px-3 py-2" />
-          <input type="text" required placeholder="Salle" value={eventForm.venue} onChange={(e) => setEventForm({ ...eventForm, venue: e.target.value })} className="rounded bg-black/40 px-3 py-2" />
-          <input type="url" placeholder="Lien billetterie" value={eventForm.ticketUrl} onChange={(e) => setEventForm({ ...eventForm, ticketUrl: e.target.value })} className="rounded bg-black/40 px-3 py-2 md:col-span-2" />
+        <form noValidate onSubmit={editingEventId ? saveEvent : addEvent} className="mt-4 grid gap-3 md:grid-cols-2">
+          <label><span className={labelClass}>Date</span><input type="date" value={eventForm.date} onChange={(e) => setEventForm({ ...eventForm, date: e.target.value })} className={inputClass} /></label>
+          <label><span className={labelClass}>Ville</span><input type="text" value={eventForm.city} onChange={(e) => setEventForm({ ...eventForm, city: e.target.value })} className={inputClass} /></label>
+          <label><span className={labelClass}>Pays</span><input type="text" value={eventForm.country} onChange={(e) => setEventForm({ ...eventForm, country: e.target.value })} className={inputClass} /></label>
+          <label><span className={labelClass}>Salle</span><input type="text" value={eventForm.venue} onChange={(e) => setEventForm({ ...eventForm, venue: e.target.value })} className={inputClass} /></label>
+          <label className="md:col-span-2"><span className={labelClass}>Lien billetterie (optionnel)</span><input type="text" value={eventForm.ticketUrl} onChange={(e) => setEventForm({ ...eventForm, ticketUrl: e.target.value })} className={inputClass} /></label>
           <div className="flex gap-3">
-            <button className="w-fit rounded-full bg-gold px-4 py-2 font-semibold text-ink">{editingEventId ? 'Enregistrer' : 'Ajouter'}</button>
+            <button type="submit" className="w-fit rounded-full bg-gold px-4 py-2 font-semibold text-ink">{editingEventId ? 'Enregistrer' : 'Ajouter'}</button>
             {editingEventId ? <button type="button" onClick={() => { setEditingEventId(''); setEventForm(emptyEvent); }} className="rounded-full border border-gold/40 px-4 py-2 text-gold">Annuler</button> : null}
           </div>
         </form>
@@ -456,11 +621,11 @@ export default function AdminPage() {
 
       <section className="rounded-xl border border-gold/20 bg-panel/70 p-5">
         <h2 className="font-display text-2xl text-sand">Gérer la galerie</h2>
-        <form onSubmit={editingImageId ? saveImage : addImage} className="mt-4 grid gap-3 md:grid-cols-2">
-          <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} className="rounded bg-black/40 px-3 py-2 md:col-span-2" />
-          <input type="text" placeholder="Légende" value={imageCaption} onChange={(e) => setImageCaption(e.target.value)} className="rounded bg-black/40 px-3 py-2 md:col-span-2" />
+        <form noValidate onSubmit={editingImageId ? saveImage : addImage} className="mt-4 grid gap-3 md:grid-cols-2">
+          <label className="md:col-span-2"><span className={labelClass}>{editingImageId ? 'Nouvelle image (optionnel)' : 'Image'}</span><input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} className={inputClass} /></label>
+          <label className="md:col-span-2"><span className={labelClass}>Légende</span><input type="text" value={imageCaption} onChange={(e) => setImageCaption(e.target.value)} className={inputClass} /></label>
           <div className="flex gap-3">
-            <button className="w-fit rounded-full bg-gold px-4 py-2 font-semibold text-ink">{editingImageId ? 'Enregistrer image' : 'Ajouter image'}</button>
+            <button type="submit" className="w-fit rounded-full bg-gold px-4 py-2 font-semibold text-ink">{editingImageId ? 'Enregistrer image' : 'Ajouter image'}</button>
             {editingImageId ? <button type="button" onClick={resetImageForm} className="rounded-full border border-gold/40 px-4 py-2 text-gold">Annuler</button> : null}
           </div>
           {editingImageId ? <p className="md:col-span-2 text-xs text-sand/70">Laisser le champ fichier vide pour garder l’image actuelle.</p> : null}
