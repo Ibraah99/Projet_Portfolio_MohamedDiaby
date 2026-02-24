@@ -1,5 +1,9 @@
 const dotenv = require('dotenv');
+const path = require('path');
 
+// Charge toujours server/.env, même si le process est lancé depuis un autre dossier (PM2/Apache).
+dotenv.config({ path: path.join(__dirname, '.env') });
+// Fallback éventuel sur .env courant si présent.
 dotenv.config();
 
 function parseOrigins(raw) {
