@@ -1,0 +1,83 @@
+{
+  "artist": {
+    "name": "Mohamed Diaby",
+    "latestHit": "Sable d'Or",
+    "bio": "Mohamed Diaby est un artiste ouest-africain contemporain dont la musique tisse un pont entre héritage mandingue et modernité afro-fusion. Né dans un environnement où les percussions, les chants de griots et les récits familiaux rythmaient le quotidien, il a développé très tôt une sensibilité unique pour les mélodies profondes et les textes porteurs de sens. Sur scène, sa voix chaleureuse dialogue avec des arrangements modernes, mêlant guitares, textures électroniques discrètes et pulsations organiques. Ses chansons racontent les racines, les départs, l'espoir et la dignité, avec une esthétique élégante qui parle autant au cœur qu'au corps. Aujourd'hui, Mohamed Diaby poursuit une vision artistique ambitieuse: faire rayonner une identité africaine contemporaine, fière et universelle.",
+    "heroMediaUrl": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1600&q=80"
+  },
+  "contacts": {
+    "whatsappUrl": "https://wa.me/22300000000",
+    "email": "booking@mohameddiaby.com",
+    "appleMusicUrl": "https://music.apple.com/us/artist/mohamed-diaby/1859768815"
+  },
+  "events": [
+    {
+      "id": "ev_1",
+      "date": "2026-04-12",
+      "city": "Paris",
+      "country": "France",
+      "venue": "Olympia Hall",
+      "ticketUrl": "https://example.com/tickets/paris"
+    },
+    {
+      "id": "ev_2",
+      "date": "2026-05-03",
+      "city": "Dakar",
+      "country": "Senegal",
+      "venue": "Théâtre National",
+      "ticketUrl": "https://example.com/tickets/dakar"
+    }
+  ],
+  "gallery": [
+    {
+      "id": "img_1",
+      "url": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=900&q=80",
+      "caption": "Concert à Bamako"
+    },
+    {
+      "id": "img_2",
+      "url": "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=900&q=80",
+      "caption": "Session studio"
+    },
+    {
+      "id": "img_3",
+      "url": "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=900&q=80",
+      "caption": "Nuits de festival"
+    },
+    {
+      "id": "img_1771373705893",
+      "url": "/uploads/img_1771373705884.png",
+      "caption": "test test "
+    }
+  ],
+  "partners": [
+    {
+      "id": "partner_1",
+      "name": "Label Heritage",
+      "websiteUrl": "https://example.com",
+      "logoUrl": "https://images.unsplash.com/photo-1618005198919-d3d4b5a92eee?auto=format&fit=crop&w=500&q=80"
+    }
+  ],
+  "tracks": [],
+  "moods": [
+    {
+      "id": "mood_2",
+      "label": "Scène live",
+      "emoji": "🎤",
+      "text": "Des refrains qui montent, une foule qui répond, et un final en transe.",
+      "color": "from-yellow-400/35 to-amber-700/20",
+      "mediaType": "none",
+      "mediaUrl": ""
+    },
+    {
+      "id": "mood_3",
+      "label": "Nuit urbaine",
+      "emoji": "🌃",
+      "text": "Des textures modernes, un beat hypnotique et une voix plus intime.",
+      "color": "from-sky-500/25 to-indigo-700/20",
+      "mediaType": "none",
+      "mediaUrl": ""
+    }
+  ],
+  "messages": []
+}

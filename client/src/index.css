@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  scrollbar-color: #8c6733 #121212;
+}
+
+body {
+  margin: 0;
+  font-family: 'Manrope', sans-serif;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(214, 178, 94, 0.12), transparent 35%),
+    radial-gradient(circle at 80% 0%, rgba(140, 103, 51, 0.18), transparent 30%),
+    #080808;
+  color: #f7f4ec;
+}
+
+.section-shell {
+  @apply mx-auto max-w-6xl px-6 py-20;
+}
+
+.gold-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #d6b25e, transparent);
+}
+
+.eq-bar {
+  animation: bounceEq 1s ease-in-out infinite;
+  transform-origin: bottom;
+}
+
+.eq-bar:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.eq-bar:nth-child(3) {
+  animation-delay: 0.24s;
+}
+
+.eq-bar:nth-child(4) {
+  animation-delay: 0.36s;
+}
+
+.eq-bar:nth-child(5) {
+  animation-delay: 0.48s;
+}
+
+@keyframes bounceEq {
+  0%,
+  100% {
+    transform: scaleY(0.5);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scaleY(1.15);
+    opacity: 1;
+  }
+}
+
+.partner-track {
+  width: max-content;
+  animation: partnerMarquee 28s linear infinite;
+}
+
+.partner-track:hover {
+  animation-play-state: paused;
+}
+
+.partner-fade-left,
+.partner-fade-right {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 70px;
+  z-index: 3;
+}
+
+.partner-fade-left {
+  left: 0;
+  background: linear-gradient(90deg, rgba(18, 18, 18, 1), rgba(18, 18, 18, 0));
+}
+
+.partner-fade-right {
+  right: 0;
+  background: linear-gradient(270deg, rgba(18, 18, 18, 1), rgba(18, 18, 18, 0));
+}
+
+@keyframes partnerMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}

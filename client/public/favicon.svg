@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Mohamed Diaby favicon">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f4d58d" />
+      <stop offset="55%" stop-color="#d6b25e" />
+      <stop offset="100%" stop-color="#8c6733" />
+    </linearGradient>
+  </defs>
+
+  <rect width="256" height="256" rx="56" fill="#0b0b0b" />
+  <rect x="16" y="16" width="224" height="224" rx="44" fill="none" stroke="url(#gold)" stroke-width="8" />
+
+  <path d="M58 185V72h20l34 58 34-58h20v113h-20v-75l-30 50h-8l-30-50v75H58z" fill="url(#gold)" />
+  <path d="M186 185V72h20c34 0 54 20 54 56s-20 57-54 57h-20zm20-19h0c22 0 34-14 34-38s-12-37-34-37h0v75z" transform="translate(-22 0)" fill="url(#gold)" />
+
+  <circle cx="128" cy="214" r="6" fill="#d6b25e" />
+</svg>
