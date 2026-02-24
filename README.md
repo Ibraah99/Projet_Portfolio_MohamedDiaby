@@ -93,6 +93,62 @@ npm --prefix server run start
 - `server/data/data.json`
 - `server/uploads/`
 
+## Déploiement Apache avec hub sur `/` et portfolio sur `/portfolio/`
+
+Si ton sous-domaine sert déjà un index labo sur `/`, tu peux exposer ce projet sous `/portfolio/`.
+
+1. Build frontend avec base path:
+```bash
+cd client
+VITE_BASE_PATH=/portfolio/ npm run build
+```
+
+2. Exemple VirtualHost Apache:
+```apache
+<VirtualHost *:80>
+    ServerAdmin admin@ibraah-labs.vip
+    ServerName thekitchen.ibraah-labs.vip
+    DocumentRoot /var/www/thekitchen.ibraah-labs.vip
+
+    # Hub existant sur /
+    <Directory /var/www/thekitchen.ibraah-labs.vip>
+        Options Indexes FollowSymLinks
+        AllowOverride None
+        Require all granted
+    </Directory>
+
+    # Portfolio React sous /portfolio/
+    Alias /portfolio/ /var/www/thekitchen.ibraah-labs.vip/portfolio/client/dist/
+    <Directory /var/www/thekitchen.ibraah-labs.vip/portfolio/client/dist>
+        Options Indexes FollowSymLinks
+        AllowOverride None
+        Require all granted
+        RewriteEngine On
+        RewriteBase /portfolio/
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule ^ /portfolio/index.html [L]
+    </Directory>
+
+    ProxyPreserveHost On
+    ProxyPass /api/ http://127.0.0.1:4000/api/
+    ProxyPassReverse /api/ http://127.0.0.1:4000/api/
+
+    ProxyPass /uploads/ http://127.0.0.1:4000/uploads/
+    ProxyPassReverse /uploads/ http://127.0.0.1:4000/uploads/
+
+    ErrorLog ${APACHE_LOG_DIR}/thekitchen.ibraah-labs.vip.error.log
+    CustomLog ${APACHE_LOG_DIR}/thekitchen.ibraah-labs.vip.access.log combined
+</VirtualHost>
+```
+
+3. Modules Apache nécessaires:
+```bash
+sudo a2enmod rewrite proxy proxy_http headers
+sudo apache2ctl configtest
+sudo systemctl reload apache2
+```
+
 ## Vérifications avant mise en ligne
 
 - Login admin OK
