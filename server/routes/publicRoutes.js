@@ -84,6 +84,7 @@ router.get('/data', async (req, res) => {
       }))
     });
   } catch (error) {
+    console.error('[GET /api/public/data] erreur:', error);
     res.status(500).json({ error: 'Impossible de charger les données publiques' });
   }
 });

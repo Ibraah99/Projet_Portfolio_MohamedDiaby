@@ -17,7 +17,11 @@ export default function HomePage() {
     api
       .getPublicData()
       .then(setData)
-      .catch(() => setError('Impossible de charger les données. Vérifie que l’API tourne sur :4000.'));
+      .catch((error) =>
+        setError(
+          `Impossible de charger les données${error?.message ? `: ${error.message}` : '.'}`
+        )
+      );
   }, []);
 
   if (error) {
