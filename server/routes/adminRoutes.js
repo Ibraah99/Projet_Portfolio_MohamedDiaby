@@ -12,6 +12,7 @@ const ADMIN_PASSWORD = config.adminPassword;
 const JWT_SECRET = config.jwtSecret;
 
 const uploadsDir = path.join(__dirname, '..', 'uploads');
+const allowedAudioExt = new Set(['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac', '.webm']);
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadsDir),
@@ -44,7 +45,10 @@ const uploadAudio = multer({
   storage: audioStorage,
   limits: { fileSize: 20 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    if (!file.mimetype || !file.mimetype.startsWith('audio/')) {
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    const hasAudioMime = file.mimetype && file.mimetype.startsWith('audio/');
+    const hasAllowedExt = allowedAudioExt.has(ext);
+    if (!hasAudioMime && !hasAllowedExt) {
       return cb(new Error('Fichier audio invalide'));
     }
     cb(null, true);
@@ -284,7 +288,8 @@ router.post('/tracks/upload', requireAdmin, uploadAudio.single('audio'), async (
     await writeData(data);
     res.status(201).json(track);
   } catch (error) {
-    res.status(500).json({ error: 'Échec de création extrait audio' });
+    console.error('[POST /api/admin/tracks/upload] erreur:', error);
+    res.status(500).json({ error: `Échec de création extrait audio: ${error.message}` });
   }
 });
 

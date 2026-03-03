@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import SectionTitle from '../components/SectionTitle';
 
@@ -8,6 +8,19 @@ export default function GallerySection({ gallery }) {
   const closeModal = () => setSelectedIndex(null);
   const showPrev = () => setSelectedIndex((idx) => (idx === null ? null : (idx - 1 + gallery.length) % gallery.length));
   const showNext = () => setSelectedIndex((idx) => (idx === null ? null : (idx + 1) % gallery.length));
+
+  useEffect(() => {
+    if (selectedIndex === null) return undefined;
+
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'ArrowLeft') showPrev();
+      if (e.key === 'ArrowRight') showNext();
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [selectedIndex, gallery.length]);
 
   return (
     <section id="gallery" className="section-shell">

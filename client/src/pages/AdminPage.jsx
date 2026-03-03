@@ -570,7 +570,11 @@ export default function AdminPage() {
         <form noValidate onSubmit={editingTrackId ? saveTrack : addTrack} className="mt-4 grid gap-3 md:grid-cols-2">
           <label><span className={labelClass}>Titre extrait</span><input type="text" value={trackForm.title} onChange={(e) => setTrackForm({ ...trackForm, title: e.target.value })} className={inputClass} /></label>
           {!editingTrackId ? (
-            <label><span className={labelClass}>Fichier audio</span><input type="file" accept="audio/*" onChange={(e) => setTrackFile(e.target.files?.[0] || null)} className={inputClass} /></label>
+            <label>
+              <span className={labelClass}>Fichier audio</span>
+              <input type="file" accept=".mp3,.wav,.ogg,.m4a,.aac,.flac,.webm,audio/*" onChange={(e) => setTrackFile(e.target.files?.[0] || null)} className={inputClass} />
+              <p className="mt-1 text-xs text-sand/60">Formats: mp3, wav, ogg, m4a, aac, flac, webm (max 20MB)</p>
+            </label>
           ) : (
             <div className="text-xs text-sand/60">Modification du titre uniquement</div>
           )}
