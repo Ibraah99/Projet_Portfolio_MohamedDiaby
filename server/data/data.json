@@ -82,7 +82,18 @@
       "logoUrl": "/uploads/img_1771940290054.jpeg"
     }
   ],
-  "tracks": [],
+  "tracks": [
+    {
+      "id": "track_1772742129772",
+      "title": "Test",
+      "url": "/uploads/aud_1772742129310.mp3"
+    },
+    {
+      "id": "track_1772742140993",
+      "title": "Test2",
+      "url": "/uploads/aud_1772742140528.mp3"
+    }
+  ],
   "moods": [
     {
       "id": "mood_2",
