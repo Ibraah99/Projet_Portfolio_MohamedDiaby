@@ -26,7 +26,7 @@ export default function ContactSection() {
       <SectionTitle
         eyebrow="Réservation"
         title="Contact"
-        subtitle="Pour les réservations, collaborations et demandes management."
+        subtitle="Booking, collaborations et management."
       />
 
       <form onSubmit={handleSubmit} className="grid gap-4 rounded-2xl border border-gold/25 bg-panel/80 p-6 md:grid-cols-2">

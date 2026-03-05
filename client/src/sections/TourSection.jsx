@@ -7,7 +7,7 @@ export default function TourSection({ events }) {
       <SectionTitle
         eyebrow="En Live"
         title="Dates de Tournée"
-        subtitle="Découvre les prochains concerts et réserve tes places."
+        subtitle="Prochains concerts et accès billetterie."
       />
 
       <div className="space-y-4">

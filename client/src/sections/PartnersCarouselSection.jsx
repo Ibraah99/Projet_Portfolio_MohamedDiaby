@@ -10,7 +10,7 @@ export default function PartnersCarouselSection({ partners = [] }) {
       <SectionTitle
         eyebrow="Réseau"
         title="Partenaires"
-        subtitle="Un écosystème artistique et professionnel engagé autour de Mohamed Diaby."
+        subtitle="Réseau officiel de partenaires."
       />
 
       <div className="relative overflow-hidden rounded-2xl border border-gold/25 bg-panel/70 py-5">

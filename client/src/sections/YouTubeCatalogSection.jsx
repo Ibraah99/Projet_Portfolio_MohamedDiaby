@@ -44,7 +44,7 @@ export default function YouTubeCatalogSection() {
       <SectionTitle
         eyebrow="Vidéos"
         title="Dernières sorties YouTube"
-        subtitle="Découvre les dernières vidéos en damier, puis ouvre celle que tu veux en grand lecteur."
+        subtitle="Les 3 dernières vidéos, en lecture rapide."
       />
 
       {loading ? <p className="text-sand/70">Chargement des vidéos...</p> : null}
@@ -66,7 +66,7 @@ export default function YouTubeCatalogSection() {
                 </span>
               </button>
               <div className="p-4">
-                <p className="text-sm font-semibold text-sand">{video.title}</p>
+                <p className="text-sm font-semibold text-sand">{video.title.length > 65 ? `${video.title.slice(0, 65)}...` : video.title}</p>
                 <p className="mt-1 text-xs text-sand/60">{formatDate(video.published)}</p>
                 <a
                   href={video.url}

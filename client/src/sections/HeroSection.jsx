@@ -3,6 +3,13 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 export default function HeroSection({ artist, tracks = [] }) {
   const [openPlayer, setOpenPlayer] = useState(false);
+  const shortPitch = (() => {
+    const rawBio = String(artist?.bio || '').trim();
+    if (!rawBio) return 'Voix afro-contemporaine, scène vivante et énergie mandingue.';
+    const firstSentence = rawBio.split(/[.!?]/)[0]?.trim() || rawBio;
+    if (firstSentence.length <= 110) return `${firstSentence}.`;
+    return `${firstSentence.slice(0, 110).trim()}...`;
+  })();
 
   return (
     <section className="relative min-h-[85vh] overflow-hidden">
@@ -22,8 +29,9 @@ export default function HeroSection({ artist, tracks = [] }) {
         >
           <p className="mb-4 text-xs uppercase tracking-[0.35em] text-gold">Site Officiel</p>
           <h1 className="font-display text-5xl leading-tight text-sand md:text-7xl">{artist.name}</h1>
-          <p className="mt-5 text-lg text-sand/85 md:text-xl">
-            Dernier titre: <span className="font-semibold text-gold">{artist.latestHit}</span>
+          <p className="mt-4 max-w-2xl text-base text-sand/80 md:text-lg">{shortPitch}</p>
+          <p className="mt-3 text-base text-sand/85 md:text-lg">
+            Dernier titre <span className="font-semibold text-gold">"{artist.latestHit}"</span>
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <a href="#tour" className="rounded-full bg-gold px-5 py-2 text-sm font-semibold text-ink transition hover:bg-sand">
@@ -78,7 +86,7 @@ export default function HeroSection({ artist, tracks = [] }) {
               </div>
 
               {tracks.length === 0 ? (
-                <p className="text-sand/70">Aucun extrait disponible pour le moment.</p>
+                <p className="text-sand/70">Aucun extrait pour le moment.</p>
               ) : (
                 <div className="space-y-4">
                   {tracks.map((track) => (
